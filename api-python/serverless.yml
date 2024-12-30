@@ -1,0 +1,216 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: api-python
+
+provider:
+  name: aws
+  runtime: python3.12
+  region: us-east-1    # AWS region for the resources
+  iamRoleStatements:
+    # Permissions for interacting with the DynamoDB Users table
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Users
+    
+    # Permissions for interacting with the DynamoDB Product table and its index
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+      Resource: [
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product",
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product/index/KeywordsIndex"
+      ]
+    
+    # Permissions for interacting with the DynamoDB Carts table
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:DeleteItem
+        - dynamodb:GetItem
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Carts
+    
+    # Permissions for interacting with the DynamoDB Orders table and its index
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+      Resource: [
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders",
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders/index/OrderIndex"
+            ]
+
+# Lambda functions to handle different API requests
+functions:
+  # Function for user registration (POST request)
+  register:
+    handler: services/handler/register-user.lambda_handler
+    events:
+      - httpApi:
+          path: /api/register
+          method: post
+
+  # Function for searching products (GET request)
+  searchProducts:
+    handler: services/handler/search-products.lambda_handler
+    events:
+      - httpApi:
+          path: /api/products
+          method: get
+
+  # Function for adding an item to the cart (POST request)
+  addToCart:
+    handler: services/handler/add-to-cart.lambda_handler
+    events:
+      - httpApi:
+          path: /api/cart/add
+          method: post
+
+  # Function for checkout (POST request)
+  checkout:
+    handler: services/handler/checkout.lambda_handler
+    events:
+      - httpApi:
+          path: /api/checkout
+          method: post
+
+  # Function for creating a product (POST request)
+  createProduct:
+    handler: services/handler/create-product.lambda_handler
+    events:
+      - httpApi:
+          path: /api/products
+          method: post 
+
+  # Function for order tracking (GET request with orderID as path parameter)
+  orderTracking:
+    handler: services/handler/order-tracking.lambda_handler
+    events:
+      - httpApi:
+          path: /api/orders/{orderID}/status
+          method: get
+
+  # Function for getting user profile (GET request)
+  getUserProfile:
+    handler: services/handler/get-user-profile.lambda_handler
+    events:
+      - httpApi:
+          path: /api/profile
+          method: get
+
+  # Function for updating user profile (PUT request)
+  updateProfile:
+    handler: services/handler/update-profile.lambda_handler
+    events:
+      - httpApi:
+          path: /api/profile
+          method: put
+
+  # Function for removing an item from the cart (DELETE request)
+  removeFromCart:
+    handler: services/handler/remove-from-cart.lambda_handler
+    events:
+      - httpApi:
+          path: /api/cart/remove
+          method: delete
+
+  # Function for getting the order history (GET request)
+  getOrderHistory:
+    handler: services/handler/get-order-history.lambda_handler
+    events:
+      - httpApi:
+          path: /api/orders
+          method: get
+
+# AWS resources definition
+resources:
+  Resources:
+    # DynamoDB table for Users data (userId as partition key)
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Users
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S  # userId is of type String (S)
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH  # Partition key (HASH)
+        BillingMode: PAY_PER_REQUEST  # DynamoDB billing mode (on-demand)
+    
+    # DynamoDB table for Product data (productId as partition key)
+    ProductsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Product
+        AttributeDefinitions:
+          - AttributeName: productId
+            AttributeType: S
+          - AttributeName: keywords
+            AttributeType: S  # 'keywords' attribute of type String
+        KeySchema:
+          - AttributeName: productId
+            KeyType: HASH  # Partition key (HASH)
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: KeywordsIndex
+            KeySchema:
+              - AttributeName: keywords
+                KeyType: HASH  # Secondary index on 'keywords'
+            Projection:
+              ProjectionType: ALL  # Include all attributes in the index
+
+    # DynamoDB table for Carts (userId and productId as composite key)
+    CartTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Carts
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: productId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH  # Partition key (HASH)
+          - AttributeName: productId
+            KeyType: RANGE  # Sort key (RANGE)
+        BillingMode: PAY_PER_REQUEST
+        GlobalSecondaryIndexes:
+          - IndexName: ProductIndex
+            KeySchema:
+              - AttributeName: productId
+                KeyType: HASH  # Secondary index on 'productId'
+            Projection:
+              ProjectionType: ALL  # Include all attributes in the index
+
+    # DynamoDB table for Orders (userId and orderId as composite key)
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Orders
+        AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: orderId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: userId
+            KeyType: HASH  # Partition key (HASH)
+          - AttributeName: orderId
+            KeyType: RANGE  # Sort key (RANGE)
+        GlobalSecondaryIndexes:
+          - IndexName: OrderIndex
+            KeySchema:
+              - AttributeName: orderId
+                KeyType: HASH  # Secondary index on 'orderId'
+            Projection:
+              ProjectionType: ALL  # Include all attributes in the index
+        BillingMode: PAY_PER_REQUEST  # DynamoDB billing mode (on-demand)
