@@ -5,7 +5,7 @@ from decimal import Decimal
 
 # Initialize the DynamoDB client
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product')
+products_table = dynamodb.Table('Product_table')
 
 # Pydantic model for product validation
 class Product(BaseModel):

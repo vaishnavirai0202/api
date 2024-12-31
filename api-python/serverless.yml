@@ -14,7 +14,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:GetItem
         - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Users
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/User_table
     
     # Permissions for interacting with the DynamoDB Product table and its index
     - Effect: Allow
@@ -23,8 +23,8 @@ provider:
         - dynamodb:PutItem
         - dynamodb:GetItem
       Resource: [
-        "arn:aws:dynamodb:us-east-1:545009859387:table/Product",
-        "arn:aws:dynamodb:us-east-1:545009859387:table/Product/index/KeywordsIndex"
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product_table",
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product_table/index/KeywordsIndex"
       ]
     
     # Permissions for interacting with the DynamoDB Carts table
@@ -34,7 +34,7 @@ provider:
         - dynamodb:Query
         - dynamodb:DeleteItem
         - dynamodb:GetItem
-      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Carts
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Cart_table
     
     # Permissions for interacting with the DynamoDB Orders table and its index
     - Effect: Allow
@@ -43,15 +43,15 @@ provider:
         - dynamodb:GetItem
         - dynamodb:Query
       Resource: [
-                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders",
-                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders/index/OrderIndex"
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Order_table",
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Order_table/index/OrderIndex"
             ]
 
 # Lambda functions to handle different API requests
 functions:
   # Function for user registration (POST request)
   register:
-    handler: services/handler/register-user.lambda_handler
+    handler: handler/register-user.lambda_handler
     events:
       - httpApi:
           path: /api/register
@@ -59,7 +59,7 @@ functions:
 
   # Function for searching products (GET request)
   searchProducts:
-    handler: services/handler/search-products.lambda_handler
+    handler: handler/search-products.lambda_handler
     events:
       - httpApi:
           path: /api/products
@@ -67,7 +67,7 @@ functions:
 
   # Function for adding an item to the cart (POST request)
   addToCart:
-    handler: services/handler/add-to-cart.lambda_handler
+    handler: handler/add-to-cart.lambda_handler
     events:
       - httpApi:
           path: /api/cart/add
@@ -75,7 +75,7 @@ functions:
 
   # Function for checkout (POST request)
   checkout:
-    handler: services/handler/checkout.lambda_handler
+    handler: handler/checkout.lambda_handler
     events:
       - httpApi:
           path: /api/checkout
@@ -83,7 +83,7 @@ functions:
 
   # Function for creating a product (POST request)
   createProduct:
-    handler: services/handler/create-product.lambda_handler
+    handler: handler/create-product.lambda_handler
     events:
       - httpApi:
           path: /api/products
@@ -91,7 +91,7 @@ functions:
 
   # Function for order tracking (GET request with orderID as path parameter)
   orderTracking:
-    handler: services/handler/order-tracking.lambda_handler
+    handler: handler/order-tracking.lambda_handler
     events:
       - httpApi:
           path: /api/orders/{orderID}/status
@@ -99,7 +99,7 @@ functions:
 
   # Function for getting user profile (GET request)
   getUserProfile:
-    handler: services/handler/get-user-profile.lambda_handler
+    handler: handler/get-user-profile.lambda_handler
     events:
       - httpApi:
           path: /api/profile
@@ -107,7 +107,7 @@ functions:
 
   # Function for updating user profile (PUT request)
   updateProfile:
-    handler: services/handler/update-profile.lambda_handler
+    handler: handler/update-profile.lambda_handler
     events:
       - httpApi:
           path: /api/profile
@@ -115,7 +115,7 @@ functions:
 
   # Function for removing an item from the cart (DELETE request)
   removeFromCart:
-    handler: services/handler/remove-from-cart.lambda_handler
+    handler: handler/remove-from-cart.lambda_handler
     events:
       - httpApi:
           path: /api/cart/remove
@@ -123,7 +123,7 @@ functions:
 
   # Function for getting the order history (GET request)
   getOrderHistory:
-    handler: services/handler/get-order-history.lambda_handler
+    handler: handler/get-order-history.lambda_handler
     events:
       - httpApi:
           path: /api/orders
@@ -136,7 +136,7 @@ resources:
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Users
+        TableName: User_table
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S  # userId is of type String (S)
@@ -149,7 +149,7 @@ resources:
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Product
+        TableName: Product_table
         AttributeDefinitions:
           - AttributeName: productId
             AttributeType: S
@@ -171,7 +171,7 @@ resources:
     CartTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Carts
+        TableName: Cart_table
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
@@ -195,7 +195,7 @@ resources:
     OrdersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Orders
+        TableName: Order_table
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S

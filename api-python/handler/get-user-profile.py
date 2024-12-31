@@ -4,7 +4,7 @@ from boto3.dynamodb.conditions import Key
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-users_table = dynamodb.Table('Users')  # The name of the 'Users' table
+users_table = dynamodb.Table('User_table')  # The name of the 'Users' table
 
 def lambda_handler(event, context):
     # Extract the userId from the query string parameters in the event

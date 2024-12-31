@@ -3,7 +3,7 @@ import boto3
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-orders_table = dynamodb.Table('Orders')  # The name of the 'Orders' table
+orders_table = dynamodb.Table('Order_table')  # The name of the 'Orders' table
 
 def lambda_handler(event, context):
     # Extract the orderId from the query string parameters in the event

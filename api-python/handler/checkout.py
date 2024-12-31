@@ -5,8 +5,8 @@ from datetime import datetime
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product')
-orders_table = dynamodb.Table('Orders')
+products_table = dynamodb.Table('Product_table')
+orders_table = dynamodb.Table('Order_table')
 
 # Helper function to get an item from DynamoDB
 def get_item(table, key):

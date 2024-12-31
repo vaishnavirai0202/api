@@ -5,7 +5,7 @@ from typing import Optional, List
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product')
+products_table = dynamodb.Table('Product_table')
 
 # Pydantic model for validating query parameters
 class QueryParams(BaseModel):

@@ -5,9 +5,9 @@ from typing import Optional
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-cart_table = dynamodb.Table('Carts')
-users_table = dynamodb.Table('Users')
-products_table = dynamodb.Table('Product')
+cart_table = dynamodb.Table('Cart_table')
+users_table = dynamodb.Table('User_table')
+products_table = dynamodb.Table('Product_table')
 
 # Pydantic model for validating cart item data
 class CartItem(BaseModel):

@@ -3,7 +3,7 @@ import boto3
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-orders_table = dynamodb.Table('Orders')  # The table where order details are stored
+orders_table = dynamodb.Table('Order_table')  # The table where order details are stored
 
 # Helper function to query orders from the Orders table
 def query_order(user_id, table):

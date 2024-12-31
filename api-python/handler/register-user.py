@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 # Initialize DynamoDB client
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('Users')
+table = dynamodb.Table('User_table')
 
 # Define the user model for validation using Pydantic
 class User(BaseModel):
