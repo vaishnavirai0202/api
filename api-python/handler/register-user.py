@@ -1,35 +1,12 @@
 import json
 import boto3
-from pydantic import BaseModel, EmailStr, ValidationError
-from botocore.exceptions import ClientError
+from pydantic import ValidationError
+from helper.db_helper import save_item
+from helper.validation import validate_user
 
 # Initialize DynamoDB client
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('User_table')
-
-# Define the user model for validation using Pydantic
-class User(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    shippingAddress: str
-
-# Helper function to save user data to DynamoDB
-def save_item(user):
-    try:
-        response = table.put_item(
-            Item={
-                'userId': user.email,  # Using email as the unique identifier
-                'name': user.name,
-                'email': user.email,
-                'password': user.password,  # In production, ensure passwords are hashed
-                'shippingAddress': user.shippingAddress
-            }
-        )
-        return True if response['ResponseMetadata']['HTTPStatusCode'] == 200 else False
-    except ClientError as e:
-        print(f"Error saving user: {e}")
-        return False
+table = dynamodb.Table('Users')
 
 # Lambda function handler
 def lambda_handler(event, context):
@@ -46,15 +23,24 @@ def lambda_handler(event, context):
 
         # Validate the user data using Pydantic
         try:
-            user = User(**body)  # This will raise an exception if validation fails
+            user = validate_user(body)  # This will raise an exception if validation fails
         except ValidationError as e:
             return {
                 'statusCode': 400,
-                'body': json.dumps({'message': str(e)})
+                'body': json.dumps({'message': 'Validation failed', 'details': str(e)})
             }
 
+        # Prepare the item to save in DynamoDB
+        item = {
+            'userId': user.email,  # Using email as the unique identifier
+            'name': user.name,
+            'email': user.email,
+            'password': user.password,  # In production, ensure passwords are hashed
+            'shippingAddress': user.shippingAddress
+        }
+
         # Save the validated user data to DynamoDB
-        result = save_item(user)
+        result = save_item(item, 'Users')  # Call the save_item function to save the item in DynamoDB
 
         if result:
             return {

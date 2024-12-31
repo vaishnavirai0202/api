@@ -6,6 +6,8 @@ service: api-python
 provider:
   name: aws
   runtime: python3.12
+  layers:
+    - arn:aws:lambda:us-east-1:545009859387:layer:python-libreries:2
   region: us-east-1    # AWS region for the resources
   iamRoleStatements:
     # Permissions for interacting with the DynamoDB Users table
@@ -57,77 +59,77 @@ functions:
           path: /api/register
           method: post
 
-  # Function for searching products (GET request)
-  searchProducts:
-    handler: handler/search-products.lambda_handler
-    events:
-      - httpApi:
-          path: /api/products
-          method: get
+  # # Function for searching products (GET request)
+  # searchProducts:
+  #   handler: handler/search-products.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/products
+  #         method: get
 
-  # Function for adding an item to the cart (POST request)
-  addToCart:
-    handler: handler/add-to-cart.lambda_handler
-    events:
-      - httpApi:
-          path: /api/cart/add
-          method: post
+  # # Function for adding an item to the cart (POST request)
+  # addToCart:
+  #   handler: handler/add-to-cart.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/cart/add
+  #         method: post
 
-  # Function for checkout (POST request)
-  checkout:
-    handler: handler/checkout.lambda_handler
-    events:
-      - httpApi:
-          path: /api/checkout
-          method: post
+  # # Function for checkout (POST request)
+  # checkout:
+  #   handler: handler/checkout.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/checkout
+  #         method: post
 
-  # Function for creating a product (POST request)
-  createProduct:
-    handler: handler/create-product.lambda_handler
-    events:
-      - httpApi:
-          path: /api/products
-          method: post 
+  # # Function for creating a product (POST request)
+  # createProduct:
+  #   handler: handler/create-product.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/products
+  #         method: post 
 
-  # Function for order tracking (GET request with orderID as path parameter)
-  orderTracking:
-    handler: handler/order-tracking.lambda_handler
-    events:
-      - httpApi:
-          path: /api/orders/{orderID}/status
-          method: get
+  # # Function for order tracking (GET request with orderID as path parameter)
+  # orderTracking:
+  #   handler: handler/order-tracking.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/orders/{orderID}/status
+  #         method: get
 
-  # Function for getting user profile (GET request)
-  getUserProfile:
-    handler: handler/get-user-profile.lambda_handler
-    events:
-      - httpApi:
-          path: /api/profile
-          method: get
+  # # Function for getting user profile (GET request)
+  # getUserProfile:
+  #   handler: handler/get-user-profile.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/profile
+  #         method: get
 
-  # Function for updating user profile (PUT request)
-  updateProfile:
-    handler: handler/update-profile.lambda_handler
-    events:
-      - httpApi:
-          path: /api/profile
-          method: put
+  # # Function for updating user profile (PUT request)
+  # updateProfile:
+  #   handler: handler/update-profile.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/profile
+  #         method: put
 
-  # Function for removing an item from the cart (DELETE request)
-  removeFromCart:
-    handler: handler/remove-from-cart.lambda_handler
-    events:
-      - httpApi:
-          path: /api/cart/remove
-          method: delete
+  # # Function for removing an item from the cart (DELETE request)
+  # removeFromCart:
+  #   handler: handler/remove-from-cart.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/cart/remove
+  #         method: delete
 
-  # Function for getting the order history (GET request)
-  getOrderHistory:
-    handler: handler/get-order-history.lambda_handler
-    events:
-      - httpApi:
-          path: /api/orders
-          method: get
+  # # Function for getting the order history (GET request)
+  # getOrderHistory:
+  #   handler: handler/get-order-history.lambda_handler
+  #   events:
+  #     - httpApi:
+  #         path: /api/orders
+  #         method: get
 
 # AWS resources definition
 resources:
@@ -214,3 +216,5 @@ resources:
             Projection:
               ProjectionType: ALL  # Include all attributes in the index
         BillingMode: PAY_PER_REQUEST  # DynamoDB billing mode (on-demand)
+plugins:
+  - serverless-offline

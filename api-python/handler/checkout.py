@@ -2,29 +2,12 @@ import json
 import uuid
 import boto3
 from datetime import datetime
+from helper.db_helper import get_item, save_item  # Importing helper functions
 
-# Initialize DynamoDB resource
+# Initialize DynamoDB resource (This is optional, as it is done inside the helper file)
 dynamodb = boto3.resource('dynamodb')
 products_table = dynamodb.Table('Product_table')
 orders_table = dynamodb.Table('Order_table')
-
-# Helper function to get an item from DynamoDB
-def get_item(table, key):
-    try:
-        response = table.get_item(Key=key)
-        return response.get('Item')
-    except Exception as e:
-        print(f"Error getting item: {e}")
-        return None
-
-# Helper function to save an item to DynamoDB
-def save_item(item, table):
-    try:
-        table.put_item(Item=item)
-        return True
-    except Exception as e:
-        print(f"Error saving item: {e}")
-        return False
 
 # Lambda handler function
 def lambda_handler(event, context):
@@ -51,7 +34,7 @@ def lambda_handler(event, context):
             key = {'productId': productId}  # Prepare the product key using productId from cart item
 
             # Fetch product data from the 'Products' table
-            product = get_item(products_table, key)
+            product = get_item('Product_table', key)
 
             # If product is not found in the database, return a 404 error
             if not product:
@@ -79,7 +62,7 @@ def lambda_handler(event, context):
         }
 
         # Save the order details to the 'Orders' table using the save_item helper function
-        save_order_result = save_item(order_details, orders_table)
+        save_order_result = save_item(order_details, 'Order_table')
 
         if save_order_result:
             return {

@@ -1,44 +1,13 @@
 import json
 import boto3
-from pydantic import BaseModel, Field, validator
-from typing import Optional
+from helper.db_helper import save_item, get_item
+from helper.db_helper import validate_cart_item  # Import the helper functions
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
 cart_table = dynamodb.Table('Cart_table')
 users_table = dynamodb.Table('User_table')
 products_table = dynamodb.Table('Product_table')
-
-# Pydantic model for validating cart item data
-class CartItem(BaseModel):
-    userId: str
-    productId: str
-    quantity: Optional[int] = 1  # Default quantity to 1 if not provided
-
-    # Validation for quantity
-    @validator('quantity', pre=True, always=True)
-    def validate_quantity(cls, v):
-        if v <= 0:
-            raise ValueError('Quantity must be greater than 0')
-        return v
-
-# Helper function to get an item from DynamoDB
-def get_item(table, key):
-    try:
-        response = table.get_item(Key=key)
-        return response.get('Item')
-    except Exception as e:
-        print(f"Error getting item: {e}")
-        return None
-
-# Helper function to save an item to DynamoDB
-def save_item(item, table):
-    try:
-        table.put_item(Item=item)
-        return True
-    except Exception as e:
-        print(f"Error saving item: {e}")
-        return False
 
 # Lambda handler function
 def lambda_handler(event, context):
@@ -49,9 +18,13 @@ def lambda_handler(event, context):
         productId = body.get('productId')
         quantity = body.get('quantity', 1)
 
-        # Validate the input data using Pydantic
+        # Validate the input data using the validate_cart_item helper function
         try:
-            validated_item = CartItem(userId=userId, productId=productId, quantity=quantity)
+            validated_item = validate_cart_item({
+                'userId': userId,
+                'productId': productId,
+                'quantity': quantity
+            })
         except ValueError as e:
             # If validation fails, return a 400 status code with detailed validation errors
             return {

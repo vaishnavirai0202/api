@@ -1,21 +1,9 @@
 import json
 import boto3
+from helper.db_helper import query_orders  # Import the helper function
 
-# Initialize DynamoDB resource
-dynamodb = boto3.resource('dynamodb')
-orders_table = dynamodb.Table('Order_table')  # The table where order details are stored
-
-# Helper function to query orders from the Orders table
-def query_order(user_id, table):
-    try:
-        # Query the Orders table to fetch orders for the given user_id
-        response = table.query(
-            KeyConditionExpression=boto3.dynamodb.conditions.Key('userId').eq(user_id)
-        )
-        return response.get('Items', [])  # Return order items if found
-    except Exception as e:
-        print(f"Error querying orders: {e}")
-        return None
+# Initialize DynamoDB resource and specify table name
+orders_table_name = 'Order_table'
 
 # Lambda handler function
 def lambda_handler(event, context):
@@ -31,7 +19,7 @@ def lambda_handler(event, context):
     
     try:
         # Fetch the user's order history using the helper function
-        order_history = query_order(user_id, orders_table)
+        order_history = query_orders(user_id, orders_table_name)
 
         # If no order history is found, return a 404 response
         if not order_history:
@@ -47,7 +35,7 @@ def lambda_handler(event, context):
         }
     except Exception as error:
         # Log any errors encountered during the process
-        print(f"Error fetching user profile: {error}")
+        print(f"Error fetching user orders: {error}")
         
         # Return a 500 response if there is an error fetching the order history
         return {

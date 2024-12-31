@@ -1,5 +1,7 @@
 import json
 import boto3
+from helper.db_helper import update_item  # Import the update_item function
+from helper.validation import validate_cart_item  # Import CartItem class and validate_cart_item function
 
 # Initialize the DynamoDB client
 dynamodb = boto3.resource('dynamodb')
@@ -54,17 +56,17 @@ def lambda_handler(event, context):
         # Construct the update expression by joining the parts
         update_expression = 'SET ' + ', '.join(update_expression_parts)
 
-        # Update the user profile in DynamoDB
-        response = users_table.update_item(
-            Key={'userId': user_id},  # Key to identify the item
-            UpdateExpression=update_expression,
-            ExpressionAttributeValues=expression_attribute_values,
-            ExpressionAttributeNames=expression_attribute_names,
-            ReturnValues='ALL_NEW'  # Return the updated attributes
+        # Update the user profile in DynamoDB using the helper function
+        response = update_item(
+            'User_table',  # Table name
+            {'userId': user_id},  # Key to identify the item
+            update_expression_parts,
+            expression_attribute_values,
+            expression_attribute_names
         )
 
         # Extract updated attributes from the response
-        updated_attributes = response.get('Attributes', {})
+        updated_attributes = response or {}
 
         # Return a success response with the updated attributes
         return {

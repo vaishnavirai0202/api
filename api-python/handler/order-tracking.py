@@ -1,7 +1,8 @@
 import json
 import boto3
+from helper.db_helper import query_order_track  # Import the get_item function from dynamodb_helpers.py
 
-# Initialize DynamoDB resource
+# Initialize DynamoDB resource (optional, as it's initialized in the helper file)
 dynamodb = boto3.resource('dynamodb')
 orders_table = dynamodb.Table('Order_table')  # The name of the 'Orders' table
 
@@ -17,18 +18,17 @@ def lambda_handler(event, context):
         }
     
     try:
-        # Fetch the order from the 'Orders' table
-        response = orders_table.get_item(Key={'orderId': order_id})
+        # Fetch the order from the 'Orders' table using the get_item function
+        order = query_order_track('Order_table', {'orderId': order_id})
         
         # If no order is found, return a 404 (Not Found) response
-        if 'Item' not in response:
+        if not order:
             return {
                 'statusCode': 404,
                 'body': json.dumps({'message': 'No order found'})
             }
 
         # Return the order with a 200 (OK) status code
-        order = response['Item']
         return {
             'statusCode': 200,
             'body': json.dumps(order)  # Return the order details

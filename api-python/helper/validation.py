@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, condecimal
+from pydantic import BaseModel, Field, condecimal, validator
 from typing import Optional
 
 
@@ -8,12 +8,12 @@ class ProductSchema(BaseModel):
     name: str  # Name is required
     category: Optional[str] = None  # Category is optional and can be None or empty
     subcategory: Optional[str] = None  # Subcategory is optional and can be None or empty
-    price: condecimal(gt=0)  # Price is required and must be a positive number
+    price: Optional[float] = Field(..., gt=0)  # Price is required and must be > 0
     keywords: str  # Keywords are required and should be a string
 
-    # Additional validation
+    # Additional validation configuration
     class Config:
-        min_anystr_length = 3  # Enforces a minimum length of 3 for string fields
+        anystr_min_length = 3 
 
 
 # User Validation Schema
@@ -38,22 +38,34 @@ class QuerySchema(BaseModel):
     keywords: str  # Keywords are required and should be a string
     category: Optional[str] = None  # Category is optional and can be None or empty
     subcategory: Optional[str] = None  # Subcategory is optional and can be None or empty
-    minPrice: Optional[condecimal(gt=0)] = None  # Minimum price is optional and should be a positive number
-    maxPrice: Optional[condecimal(gt=0)] = None  # Maximum price is optional and should be a positive number
+    minPrice: Optional[float] = Field(default=None, gt=0)  # Minimum price is optional and must be > 0
+    maxPrice: Optional[float] = Field(default=None, gt=0)  # Maximum price is optional and must be > 0
+
+    # Validate price range
+    @validator('minPrice', 'maxPrice', pre=True, always=True)
+    def validate_price_range(cls, v, values, field):
+        if field.name == 'minPrice' and v is not None:
+            max_price = values.get('maxPrice')
+            if max_price is not None and v > max_price:
+                raise ValueError("minPrice cannot be greater than maxPrice")
+        if field.name == 'maxPrice' and v is not None:
+            min_price = values.get('minPrice')
+            if min_price is not None and v < min_price:
+                raise ValueError("maxPrice cannot be less than minPrice")
+        return v
 
 
-# Cart Item Validation Schema
-class CartItemSchema(BaseModel):
-    userId: str  # User ID is required and should be a string
-    productId: str  # Product ID is required and should be a string
-    quantity: Optional[int] = 1  # Quantity is optional with a default value of 1
+class CartItem(BaseModel):
+    userId: str
+    productId: str
+    quantity: Optional[int] = 1  # Default quantity to 1 if not provided
 
-    # Ensure that quantity is always a positive number
-    @classmethod
-    def validate(cls, values):
-        if values.get('quantity') <= 0:
-            raise ValueError('Quantity must be a positive number')
-        return values
+    # Validation for quantity
+    @validator('quantity', pre=True, always=True)
+    def validate_quantity(cls, v):
+        if v <= 0:
+            raise ValueError('Quantity must be greater than 0')
+        return v
 
 
 # Validation Functions
@@ -69,8 +81,8 @@ def validate_query_params(query_params: dict) -> QuerySchema:
     return QuerySchema(**query_params)  # Validates query parameters against the query schema
 
 
-def validate_cart_item(cart_item_data: dict) -> CartItemSchema:
-    return CartItemSchema(**cart_item_data)  # Validates cart item data against the cart item schema
+def validate_cart_item(cart_item_data: dict) -> CartItem:
+    return CartItem(**cart_item_data)  # Validates cart item data against the cart item schema
 
 
 # Example usage (to test the functions):
