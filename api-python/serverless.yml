@@ -16,7 +16,7 @@ provider:
         - dynamodb:PutItem
         - dynamodb:GetItem
         - dynamodb:UpdateItem
-      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/User_table
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Users
     
     # Permissions for interacting with the DynamoDB Product table and its index
     - Effect: Allow
@@ -25,8 +25,8 @@ provider:
         - dynamodb:PutItem
         - dynamodb:GetItem
       Resource: [
-        "arn:aws:dynamodb:us-east-1:545009859387:table/Product_table",
-        "arn:aws:dynamodb:us-east-1:545009859387:table/Product_table/index/KeywordsIndex"
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product",
+        "arn:aws:dynamodb:us-east-1:545009859387:table/Product/index/KeywordsIndex"
       ]
     
     # Permissions for interacting with the DynamoDB Carts table
@@ -36,7 +36,7 @@ provider:
         - dynamodb:Query
         - dynamodb:DeleteItem
         - dynamodb:GetItem
-      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Cart_table
+      Resource: arn:aws:dynamodb:us-east-1:545009859387:table/Carts
     
     # Permissions for interacting with the DynamoDB Orders table and its index
     - Effect: Allow
@@ -45,8 +45,8 @@ provider:
         - dynamodb:GetItem
         - dynamodb:Query
       Resource: [
-                "arn:aws:dynamodb:us-east-1:545009859387:table/Order_table",
-                "arn:aws:dynamodb:us-east-1:545009859387:table/Order_table/index/OrderIndex"
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders",
+                "arn:aws:dynamodb:us-east-1:545009859387:table/Orders/index/OrderIndex"
             ]
 
 # Lambda functions to handle different API requests
@@ -138,7 +138,7 @@ resources:
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: User_table
+        TableName: Users
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S  # userId is of type String (S)
@@ -151,7 +151,7 @@ resources:
     ProductsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Product_table
+        TableName: Product
         AttributeDefinitions:
           - AttributeName: productId
             AttributeType: S
@@ -173,7 +173,7 @@ resources:
     CartTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Cart_table
+        TableName: Carts
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
@@ -197,7 +197,7 @@ resources:
     OrdersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: Order_table
+        TableName: Orders
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S

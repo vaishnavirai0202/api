@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, condecimal, validator
+from pydantic import BaseModel, Field,  validator
 from typing import Optional
 
 

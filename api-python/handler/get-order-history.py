@@ -3,7 +3,7 @@ import boto3
 from helper.db_helper import query_orders  # Import the helper function
 
 # Initialize DynamoDB resource and specify table name
-orders_table_name = 'Order_table'
+orders_table_name = 'Orders'
 
 # Lambda handler function
 def lambda_handler(event, context):

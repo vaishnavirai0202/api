@@ -7,9 +7,9 @@ from helper.db_helper import validate_cart_item
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-cart_table = dynamodb.Table('Cart_table')
-users_table = dynamodb.Table('User_table')
-products_table = dynamodb.Table('Product_table')
+cart_table = dynamodb.Table('Carts')
+users_table = dynamodb.Table('Users')
+products_table = dynamodb.Table('Product')
 
 # Lambda handler function
 def lambda_handler(event, context):

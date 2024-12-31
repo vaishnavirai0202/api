@@ -4,7 +4,7 @@ from helper.db_helper import query_order_track  # Import the get_item function f
 
 # Initialize DynamoDB resource (optional, as it's initialized in the helper file)
 dynamodb = boto3.resource('dynamodb')
-orders_table = dynamodb.Table('Order_table')  # The name of the 'Orders' table
+orders_table = dynamodb.Table('Orders')  # The name of the 'Orders' table
 
 def lambda_handler(event, context):
     # Extract the orderId from the query string parameters in the event
@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     
     try:
         # Fetch the order from the 'Orders' table using the get_item function
-        order = query_order_track('Order_table', {'orderId': order_id})
+        order = query_order_track(orders_table, {'orderId': order_id})
         
         # If no order is found, return a 404 (Not Found) response
         if not order:

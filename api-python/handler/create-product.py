@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 # Initialize the DynamoDB client
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product_table')
+products_table = dynamodb.Table('Product')
 
 # Lambda function handler
 def lambda_handler(event, context):
@@ -44,7 +44,7 @@ def lambda_handler(event, context):
         }
 
         # Save the product item to DynamoDB using the imported save_item function
-        result = save_item(product_item, 'Product_table')
+        result = save_item(product_item, products_table)
 
         if result:
             # Return a 201 Created response if the product was successfully saved

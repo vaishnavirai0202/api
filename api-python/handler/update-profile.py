@@ -5,7 +5,7 @@ from helper.validation import validate_cart_item  # Import CartItem class and va
 
 # Initialize the DynamoDB client
 dynamodb = boto3.resource('dynamodb')
-users_table = dynamodb.Table('User_table')  # Table name for Users
+users_table = dynamodb.Table('Users')  # Table name for Users
 
 def lambda_handler(event, context):
     try:
@@ -58,7 +58,7 @@ def lambda_handler(event, context):
 
         # Update the user profile in DynamoDB using the helper function
         response = update_item(
-            'User_table',  # Table name
+            users_table,  # Table name
             {'userId': user_id},  # Key to identify the item
             update_expression_parts,
             expression_attribute_values,

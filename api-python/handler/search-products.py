@@ -7,7 +7,7 @@ from helper.validation import validate_query_params  # Import QuerySchema and va
 
 # Initialize DynamoDB resource
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product_table')
+products_table = dynamodb.Table('Product')
 
 # Lambda handler function
 def lambda_handler(event, context):

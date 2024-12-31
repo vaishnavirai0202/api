@@ -18,7 +18,7 @@ def lambda_handler(event, context):
 
     try:
         # Fetch the user profile using the get_item helper function
-        user_profile = get_item('User_table', key)
+        user_profile = get_item('Users', key)
         
         # If no user profile is found, return a 404 (Not Found) response
         if not user_profile:

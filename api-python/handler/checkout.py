@@ -6,8 +6,8 @@ from helper.db_helper import get_item, save_item  # Importing helper functions
 
 # Initialize DynamoDB resource (This is optional, as it is done inside the helper file)
 dynamodb = boto3.resource('dynamodb')
-products_table = dynamodb.Table('Product_table')
-orders_table = dynamodb.Table('Order_table')
+products_table = dynamodb.Table('Product')
+orders_table = dynamodb.Table('Orders')
 
 # Lambda handler function
 def lambda_handler(event, context):
@@ -34,7 +34,7 @@ def lambda_handler(event, context):
             key = {'productId': productId}  # Prepare the product key using productId from cart item
 
             # Fetch product data from the 'Products' table
-            product = get_item('Product_table', key)
+            product = get_item(products_table, key)
 
             # If product is not found in the database, return a 404 error
             if not product:
@@ -62,7 +62,7 @@ def lambda_handler(event, context):
         }
 
         # Save the order details to the 'Orders' table using the save_item helper function
-        save_order_result = save_item(order_details, 'Order_table')
+        save_order_result = save_item(order_details, orders_table)
 
         if save_order_result:
             return {

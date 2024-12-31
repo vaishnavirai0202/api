@@ -40,7 +40,7 @@ def lambda_handler(event, context):
         }
 
         # Save the validated user data to DynamoDB
-        result = save_item(item, 'Users')  # Call the save_item function to save the item in DynamoDB
+        result = save_item(item, table)  # Call the save_item function to save the item in DynamoDB
 
         if result:
             return {
